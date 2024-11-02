@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Dict, List, Set
 
+
 class Livro:
+
     def __init__(self, codigo: int, titulo: str, autor: str, quantidade: int):
         self.codigo = codigo
         self.titulo = titulo
@@ -21,7 +23,9 @@ class Livro:
             return True
         return False
 
+
 class Usuario:
+
     def __init__(self, id_usuario: int, nome: str, endereco: str):
         self.id_usuario = id_usuario
         self.nome = nome
@@ -35,25 +39,39 @@ class Usuario:
     def exibir_historico(self):
         return self.historico_leitura
 
+
 class Emprestimo:
-    def __init__(self, livro: Livro, data_emprestimo: datetime, data_devolucao: datetime = None):
+
+    def __init__(self,
+                 livro: Livro,
+                 data_emprestimo: datetime,
+                 data_devolucao: datetime = None):
         self.livro = livro
         self.data_emprestimo = data_emprestimo
         self.data_devolucao = data_devolucao
 
+
 class Biblioteca:
+
     def __init__(self):
         self.livros_por_codigo: Dict[int, Livro] = {}
         self.livros_por_titulo: Dict[str, Livro] = {}
         self.usuarios: Dict[int, Usuario] = {}
 
-    def adicionar_livro(self, codigo: int, titulo: str, autor: str, quantidade: int):
-        livro = Livro(codigo, titulo, autor, quantidade)  # Passa o autor para o construtor do livro
+    def adicionar_livro(self, codigo: int, titulo: str, autor: str,
+                        quantidade: int):
+        if codigo in self.livros_por_codigo:
+            print("Livro com este código já existe.")
+            return
+        livro = Livro(codigo, titulo, autor, quantidade)
         self.livros_por_codigo[codigo] = livro
         self.livros_por_titulo[titulo.lower()] = livro
         print(f"Livro '{titulo}' de {autor} adicionado com sucesso!")
 
     def adicionar_usuario(self, id_usuario: int, nome: str, endereco: str):
+        if id_usuario in self.usuarios:
+            print("Usuário com este ID já existe.")
+            return
         usuario = Usuario(id_usuario, nome, endereco)
         self.usuarios[id_usuario] = usuario
         print(f"Usuário '{nome}' adicionado com sucesso!")
@@ -78,7 +96,9 @@ class Biblioteca:
         emprestimo = Emprestimo(livro, datetime.now())
         usuario.emprestimos_atuais.append(emprestimo)
         usuario.adicionar_historico(codigo_livro)
-        print(f"Livro '{livro.titulo}' de {livro.autor} emprestado com sucesso para {usuario.nome}.")
+        print(
+            f"Livro '{livro.titulo}' de {livro.autor} emprestado com sucesso para {usuario.nome}."
+        )
         return True
 
     def devolver_livro(self, id_usuario: int, codigo_livro: int):
@@ -88,7 +108,8 @@ class Biblioteca:
             print("Usuário não encontrado.")
             return False
 
-        emprestimo = next((e for e in usuario.emprestimos_atuais if e.livro.codigo == codigo_livro), None)
+        emprestimo = next((e for e in usuario.emprestimos_atuais
+                           if e.livro.codigo == codigo_livro), None)
         if not emprestimo:
             print("Empréstimo não encontrado para o livro especificado.")
             return False
@@ -96,13 +117,17 @@ class Biblioteca:
         emprestimo.livro.devolver()
         emprestimo.data_devolucao = datetime.now()
         usuario.emprestimos_atuais.remove(emprestimo)
-        print(f"Livro '{emprestimo.livro.titulo}' de {emprestimo.livro.autor} devolvido com sucesso.")
+        print(
+            f"Livro '{emprestimo.livro.titulo}' de {emprestimo.livro.autor} devolvido com sucesso."
+        )
         return True
 
     def exibir_livros_disponiveis(self):
         print("Livros disponíveis:")
         for livro in self.livros_por_codigo.values():
-            print(f"'{livro.titulo}' de {livro.autor} (Código: {livro.codigo}) - Disponíveis: {livro.disponivel}/{livro.quantidade}")
+            print(
+                f"'{livro.titulo}' de {livro.autor} (Código: {livro.codigo}) - Disponíveis: {livro.disponivel}/{livro.quantidade}"
+            )
 
     def exibir_historico_usuario(self, id_usuario: int):
         usuario = self.usuarios.get(id_usuario)
@@ -122,7 +147,9 @@ class Biblioteca:
             codigo = int(identificador)
             livro = self.livros_por_codigo.get(codigo)
             if livro:
-                print(f"Livro encontrado: '{livro.titulo}' de {livro.autor} - Disponíveis: {livro.disponivel}/{livro.quantidade}")
+                print(
+                    f"Livro encontrado: '{livro.titulo}' de {livro.autor} - Disponíveis: {livro.disponivel}/{livro.quantidade}"
+                )
                 return
         except ValueError:
             pass  # Se não for um número, tentamos pelo título
@@ -130,26 +157,36 @@ class Biblioteca:
         # Tenta buscar pelo título
         livro = self.livros_por_titulo.get(identificador.lower())
         if livro:
-            print(f"Livro encontrado: '{livro.titulo}' de {livro.autor} - Disponíveis: {livro.disponivel}/{livro.quantidade}")
+            print(
+                f"Livro encontrado: '{livro.titulo}' de {livro.autor} - Disponíveis: {livro.disponivel}/{livro.quantidade}"
+            )
         else:
             print("Livro não encontrado.")
 
-# menu interativo
+
+# Menu interativo
 def menu():
     biblioteca = Biblioteca()
 
-    # solicita a adição de um usuário antes de exibir o menu
+    # Solicita a adição de um usuário antes de exibir o menu
     print("Bem-vindo ao sistema de gerenciamento de biblioteca!")
     print("Por favor, adicione um usuário ao sistema para iniciar.")
 
-    id_usuario = int(input("ID do usuário: "))
-    nome = input("Nome do usuário: ")
-    endereco = input("Endereço do usuário: ")
-    biblioteca.adicionar_usuario(id_usuario, nome, endereco)
-
-    # pergunta se deseja exibir o menu apos o cadastro do primeiro usuário
     while True:
-        ver_menu = input("\nUsuário adicionado! Deseja ver o menu de opções? (s/n): ").strip().lower()
+        try:
+            id_usuario = int(input("ID do usuário: "))
+            nome = input("Nome do usuário: ")
+            endereco = input("Endereço do usuário: ")
+            biblioteca.adicionar_usuario(id_usuario, nome, endereco)
+            break  # Sai do loop se o usuário foi adicionado com sucesso
+        except ValueError:
+            print("Por favor, insira um número válido para o ID do usuário.")
+
+    # Pergunta se deseja exibir o menu após o cadastro do primeiro usuário
+    while True:
+        ver_menu = input(
+            "\nUsuário adicionado! Deseja ver o menu de opções? (s/n): "
+        ).strip().lower()
         if ver_menu == 's':
             break
         elif ver_menu == 'n':
@@ -158,7 +195,7 @@ def menu():
         else:
             print("Opção inválida. Por favor, digite 's' ou 'n'.")
 
-    # Exibição do menu apos confirmação
+    # Exibição do menu após confirmação
     while True:
         print("\nMenu de Opções:")
         print("1. Adicionar Livro")
@@ -172,44 +209,70 @@ def menu():
 
         opcao = input("Escolha uma opção: ")
         if opcao == '1':
-            codigo = int(input("Código do livro: "))
-            titulo = input("Título do livro: ")
-            autor = input("Autor do livro: ")  # Pergunta pelo autor do livro
-            quantidade = int(input("Quantidade de exemplares: "))
-            biblioteca.adicionar_livro(codigo, titulo, autor, quantidade)
-        
+            try:
+                codigo = int(input("Código do livro: "))
+                titulo = input("Título do livro: ")
+                autor = input(
+                    "Autor do livro: ")  # Pergunta pelo autor do livro
+                quantidade = int(input("Quantidade de exemplares: "))
+                biblioteca.adicionar_livro(codigo, titulo, autor, quantidade)
+            except ValueError:
+                print(
+                    "Por favor, insira um número válido para o código e quantidade."
+                )
+
         elif opcao == '2':
-            id_usuario = int(input("ID do usuário: "))
-            nome = input("Nome do usuário: ")
-            endereco = input("Endereço do usuário: ")
-            biblioteca.adicionar_usuario(id_usuario, nome, endereco)
-        
+            try:
+                id_usuario = int(input("ID do usuário: "))
+                nome = input("Nome do usuário: ")
+                endereco = input("Endereço do usuário: ")
+                biblioteca.adicionar_usuario(id_usuario, nome, endereco)
+            except ValueError:
+                print(
+                    "Por favor, insira um número válido para o ID do usuário.")
+
         elif opcao == '3':
-            id_usuario = int(input("ID do usuário: "))
-            codigo_livro = int(input("Código do livro: "))
-            biblioteca.emprestar_livro(id_usuario, codigo_livro)
-        
+            try:
+                id_usuario = int(input("ID do usuário: "))
+                codigo_livro = int(input("Código do livro: "))
+                biblioteca.emprestar_livro(id_usuario, codigo_livro)
+            except ValueError:
+                print(
+                    "Por favor, insira um número válido para o ID do usuário e o código do livro."
+                )
+
         elif opcao == '4':
-            id_usuario = int(input("ID do usuário: "))
-            codigo_livro = int(input("Código do livro: "))
-            biblioteca.devolver_livro(id_usuario, codigo_livro)
-        
+            try:
+                id_usuario = int(input("ID do usuário: "))
+                codigo_livro = int(input("Código do livro: "))
+                biblioteca.devolver_livro(id_usuario, codigo_livro)
+            except ValueError:
+                print(
+                    "Por favor, insira um número válido para o ID do usuário e o código do livro."
+                )
+
         elif opcao == '5':
             biblioteca.exibir_livros_disponiveis()
-        
+
         elif opcao == '6':
-            id_usuario = int(input("ID do usuário: "))
-            biblioteca.exibir_historico_usuario(id_usuario)
-        
+            try:
+                id_usuario = int(input("ID do usuário: "))
+                biblioteca.exibir_historico_usuario(id_usuario)
+            except ValueError:
+                print(
+                    "Por favor, insira um número válido para o ID do usuário.")
+
         elif opcao == '7':
             identificador = input("Digite o título ou código do livro: ")
             biblioteca.consultar_livro(identificador)
-        
+
         elif opcao == '0':
             print("Saindo do sistema...")
-            break
-        else:
-            print("Opção inválida. Tente novamente.")
+            break  # Encerra o loop e sai do menu
 
-# Executa o menu
-menu()
+        else:
+            print("Opção inválida. Por favor, escolha uma opção válida.")
+
+
+if __name__ == "__main__":
+    menu()
